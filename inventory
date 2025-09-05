@@ -1,3 +1,3 @@
 [server]
 
-db  ansible_host=ec2-35-180-61-94.eu-west-3.compute.amazonaws.com  ansible_user=ubuntu ansible_ssh_private_key_file=/home/nitin/Downloads/ansible.pem ansible_python_interpreter=/usr/bin/python3 ansible_python_options='-S'
+db  ansible_host=<publicip of instance> ansible_user=ubuntu ansible_ssh_private_key_file=/home/location/of/pemkey/ ansible_python_interpreter=/usr/bin/python3 ansible_python_options='-S'
