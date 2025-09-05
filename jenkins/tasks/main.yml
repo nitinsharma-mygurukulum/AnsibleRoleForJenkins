@@ -1,0 +1,33 @@
+---
+# tasks file for jenkins
+    - name: apt update
+      apt:
+        name: "*"
+        state: latest
+    - name: add jenkin repo key using get_url
+      get_url:
+        url: https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+        dest: /etc/apt/keyrings/jenkins-keyring.asc
+    - name: import key file from jenkins ci using apt_key
+      apt_key:
+        state: present
+        file: /etc/apt/keyrings/jenkins-keyring.asc
+    - name: Add Jenkins APT repository to sources list
+      apt_repository:
+        repo: deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/
+        state: present
+    - name: apt update
+      apt:
+        name: "*"
+        state: latest
+    - name: install java
+      shell: apt install fontconfig openjdk-21-jre -y
+    - name: install jenkins
+      apt:
+        name: jenkins
+        state: latest
+    - name: start jenkins
+      ansible.builtin.systemd:
+        enabled: yes
+        name: jenkins
+        state: started
