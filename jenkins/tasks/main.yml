@@ -1,33 +1,31 @@
 ---
-# tasks file for jenkins
-    - name: apt update
-      apt:
-        name: "*"
-        state: latest
-    - name: add jenkin repo key using get_url
-      get_url:
-        url: https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
-        dest: /etc/apt/keyrings/jenkins-keyring.asc
-    - name: import key file from jenkins ci using apt_key
-      apt_key:
-        state: present
-        file: /etc/apt/keyrings/jenkins-keyring.asc
-    - name: Add Jenkins APT repository to sources list
-      apt_repository:
-        repo: deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/
-        state: present
-    - name: apt update
-      apt:
-        name: "*"
-        state: latest
-    - name: install java
-      shell: apt install fontconfig openjdk-21-jre -y
-    - name: install jenkins
-      apt:
-        name: jenkins
-        state: latest
-    - name: start jenkins
-      ansible.builtin.systemd:
-        enabled: yes
-        name: jenkins
-        state: started
+# tasks file for /etc/ansible/roles/jenkins-installation
+- name: Download the Jenkins GPG key and store it in the system's keyring
+  get_url:
+    url: https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+    dest: /usr/share/keyrings/jenkins-keyring.asc
+- name: Create file as /etc/apt/sources.list.d/jenkins.list with content"
+  copy:
+    dest: /etc/apt/sources.list.d/jenkins.list
+    content: |
+      deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/
+- name: Update all packages to their latest version
+  apt:
+    update_cache: yes
+    force_apt_get: yes
+- name: INSTALLING JENKINS PACKAGES
+  apt:
+    name: '{{ item }}'
+    state: present
+  with_items:
+    - fontconfig
+    - openjdk-17-jre
+    - jenkins
+- name: Store the value of initial password in variable
+  shell:
+    cmd: cat /var/lib/jenkins/secrets/initialAdminPassword
+  register: command_output
+- name: Display INITIALADMINPASSWORD
+  debug:
+    var: command_output.stdout_lines
+
